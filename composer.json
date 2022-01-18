@@ -1,0 +1,33 @@
+{
+    "name": "yaremenkosa/esia-socialite",
+    "description": "Esia OAuth2 Provider for Laravel Socialite",
+    "keywords": [
+        "laravel",
+        "oauth",
+        "provider",
+        "socialite",
+        "esia"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "yaremenkosa",
+            "email": "yaremenkosa@icloud.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2 || ^8.0",
+        "ext-json": "*",
+        "socialiteproviders/manager": "~4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SocialiteProviders\\Esia\\": ""
+        }
+    },
+    "support": {
+        "issues": "https://github.com/yaremenkosa/esia-socialite/issues",
+        "source": "https://github.com/yaremenkosa/esia-socialite/providers",
+        "docs": "https://github.com/yaremenkosa/esia-socialite/wiki"
+    }
+}
