@@ -25,6 +25,8 @@
             "SocialiteProviders\\Esia\\": ""
         }
     },
+    "prefer-stable": true,
+    "minimum-stability": "dev",
     "support": {
         "issues": "https://github.com/yaremenkosa/esia-socialite/issues",
         "source": "https://github.com/yaremenkosa/esia-socialite/providers",
