@@ -23,7 +23,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SocialiteProviders\\Esia\\": "src"
+            "Yaremenkosa\\Esia\\": ""
         }
     },
     "prefer-stable": true,
