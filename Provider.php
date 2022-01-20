@@ -9,54 +9,42 @@ use Esia\OpenId;
 use Esia\Signer\CliSignerPKCS7;
 use Esia\Signer\Exceptions\SignFailException;
 use Esia\Signer\SignerInterface;
-use Illuminate\Http\Request;
 use Laravel\Socialite\AbstractUser;
-use Laravel\Socialite\Two\AbstractProvider;
-use Laravel\Socialite\Two\ProviderInterface;
-use Laravel\Socialite\Two\User;
+use SocialiteProviders\Manager\OAuth2\AbstractProvider;
+use SocialiteProviders\Manager\OAuth2\User;
 
 /**
- * Class EsiaProvider
+ * Class Provider
  * @package Yaremenkosa\Esia
  */
-class EsiaProvider extends AbstractProvider implements ProviderInterface
+class Provider extends AbstractProvider
 {
     /** @var OpenId */
-    protected OpenId $esia;
+    protected $esia;
 
     /** @var string */
     protected string $serviceUrl;
-    /**
-     * @var Config
-     */
-    private Config $config;
 
-    /**
-     * Provider constructor.
-     * @param  Request  $request
-     * @param  array  $config
-     * @param  array  $guzzle
-     * @param  string  $clientSecret
-     * @throws InvalidConfigurationException
-     */
-    public function __construct(
-        Request $request,
-        array $config,
-        array $guzzle = [],
-        string $clientSecret = ''
-    ) {
-        $this->config = $this->makeConfig($config);
+    /** @var Config */
+    protected $esiaConfig;
 
-        parent::__construct(
-            $request,
-            $this->config->getClientId(),
-            $clientSecret,
-            $this->config->getRedirectUrl(),
-            $guzzle
-        );
+    protected function esiaConfig(): Config
+    {
+        if (!$this->esiaConfig) {
+            $this->esiaConfig = $this->makeConfig($this->getConfig());
+        }
 
-        $this->esia = new OpenId($this->config);
-        $this->esia->setSigner($this->makeSigner($config['signer'] ?? CliSignerPKCS7::class));
+        return $this->esiaConfig;
+    }
+
+    protected function esia(): OpenId
+    {
+        if (!$this->esia) {
+            $this->esia = new OpenId($this->esiaConfig());
+            $this->esia()->setSigner($this->makeSigner($this->getConfig('signer') ?? CliSignerPKCS7::class));
+        }
+
+        return $this->esia;
     }
 
     /**
@@ -64,7 +52,7 @@ class EsiaProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->config->getPortalUrl();
+        return $this->esiaConfig()->getPortalUrl();
     }
 
     /**
@@ -72,7 +60,7 @@ class EsiaProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return $this->config->getPortalUrl().'/aas/oauth2/te';
+        return $this->esiaConfig()->getPortalUrl().'/aas/oauth2/te';
     }
 
     /**
@@ -81,7 +69,7 @@ class EsiaProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken($token)
     {
-        return $this->esia->getPersonInfo() + ['oid' => $this->esia->getConfig()->getOid()];
+        return $this->esia()->getPersonInfo() + ['oid' => $this->esia()->getConfig()->getOid()];
     }
 
     /**
@@ -106,7 +94,7 @@ class EsiaProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessTokenResponse($code): array
     {
-        $token = $this->esia->getToken($code);
+        $token = $this->esia()->getToken($code);
         $payload = json_decode($this->base64UrlSafeDecode(explode('.', $token)[1]), true);
 
         return [
@@ -125,11 +113,11 @@ class EsiaProvider extends AbstractProvider implements ProviderInterface
     {
         return new Config(
             [
-                'clientId' => $config['clientId'],
-                'redirectUrl' => $config['redirectUrl'],
-                'privateKeyPath' => $config['privateKeyPath'],
-                'certPath' => $config['certPath'],
-                'portalUrl' => $config['serviceUrl'],
+                'clientId' => $config['client_id'],
+                'redirectUrl' => $config['redirect'],
+                'privateKeyPath' => $config['private_key_path'],
+                'certPath' => $config['cert_path'],
+                'portalUrl' => $config['service_url'],
                 'scope' => $this->scopes,
             ]
         );
@@ -142,10 +130,10 @@ class EsiaProvider extends AbstractProvider implements ProviderInterface
     protected function makeSigner(string $signer): SignerInterface
     {
         return new $signer(
-            $this->config->getCertPath(),
-            $this->config->getPrivateKeyPath(),
-            $this->config->getPrivateKeyPassword(),
-            $this->config->getTmpPath(),
+            $this->esiaConfig()->getCertPath(),
+            $this->esiaConfig()->getPrivateKeyPath(),
+            $this->esiaConfig()->getPrivateKeyPassword(),
+            $this->esiaConfig()->getTmpPath(),
         );
     }
 
@@ -167,6 +155,18 @@ class EsiaProvider extends AbstractProvider implements ProviderInterface
      */
     public function buildUrl(): string
     {
-        return $this->esia->buildUrl();
+        return $this->esia()->buildUrl();
+    }
+
+    public static function additionalConfigKeys()
+    {
+        return [
+            'service_url',
+            'private_key_path',
+            'private_key_password',
+            'cert_path',
+            'tmp_path',
+            'signer',
+        ];
     }
 }

@@ -8,6 +8,6 @@ class EsiaExtendSocialite
 {
     public function handle(SocialiteWasCalled $socialiteWasCalled)
     {
-        $socialiteWasCalled->extendSocialite('esia', EsiaProvider::class);
+        $socialiteWasCalled->extendSocialite('esia', Provider::class);
     }
 }

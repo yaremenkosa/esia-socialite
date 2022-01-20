@@ -21,16 +21,9 @@
         "socialiteproviders/manager": "~4.0",
         "fr05t1k/esia": "^2.4"
     },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Yaremenkosa\\Esia\\EsiaServiceProvider"
-            ]
-        }
-    },
     "autoload": {
         "psr-4": {
-            "Yaremenkosa\\Esia\\": "src"
+            "Yaremenkosa\\Esia\\": ""
         }
     },
     "prefer-stable": true,
