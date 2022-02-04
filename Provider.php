@@ -28,6 +28,11 @@ class Provider extends AbstractProvider
     /** @var Config */
     protected $esiaConfig;
 
+    /** @var array */
+    protected static $contactFields = [
+        'EML' => 'email',
+    ];
+
     protected function esiaConfig(): Config
     {
         if (!$this->esiaConfig) {
@@ -52,7 +57,18 @@ class Provider extends AbstractProvider
      */
     protected function getAuthUrl($state)
     {
-        return $this->esiaConfig()->getPortalUrl();
+        return $this->buildUrl();
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function user()
+    {
+        $response = $this->getAccessTokenResponse($this->getCode());
+
+        return $this->mapUserToObject($this->getUserByToken($response));
     }
 
     /**
@@ -69,7 +85,10 @@ class Provider extends AbstractProvider
      */
     protected function getUserByToken($token)
     {
-        return $this->esia()->getPersonInfo() + ['oid' => $this->esia()->getConfig()->getOid()];
+        $personInfo = $this->esia()->getPersonInfo();
+        $contactInfo = $this->mapContactInfo($this->esia()->getContactInfo());
+
+        return $personInfo + $contactInfo + ['oid' => $this->esia()->getConfig()->getOid()];
     }
 
     /**
@@ -84,8 +103,25 @@ class Provider extends AbstractProvider
                 [
                     'id' => $user['oid'],
                     'name' => $user['lastName'].' '.$user['firstName'].' '.$user['middleName'],
+                    'email' => $user['email'],
                 ]
             );
+    }
+
+    /**
+     * @param  array  $contacts
+     * @return array
+     */
+    protected function mapContactInfo(array $contactInfo): array
+    {
+        $result = [];
+        foreach ($contactInfo as $info) {
+            if (array_key_exists($info['type'], self::$contactFields)) {
+                $result[self::$contactFields[$info['type']]] = $info['value'];
+            }
+        }
+
+        return $result;
     }
 
     /**
