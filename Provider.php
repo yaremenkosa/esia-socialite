@@ -88,7 +88,7 @@ class Provider extends AbstractProvider
         $personInfo = $this->esia()->getPersonInfo();
         $contactInfo = $this->mapContactInfo($this->esia()->getContactInfo());
 
-        return $personInfo + $contactInfo + ['oid' => $this->esia()->getConfig()->getOid()];
+        return $personInfo + $contactInfo + ['oid' => $this->esia()->getConfig()->getOid(), 'token' => $token['access_token']];
     }
 
     /**
@@ -104,6 +104,7 @@ class Provider extends AbstractProvider
                     'id' => $user['oid'],
                     'name' => $user['lastName'].' '.$user['firstName'].' '.$user['middleName'],
                     'email' => $user['email'],
+                    'token' => $user['token'],
                 ]
             );
     }
