@@ -31,6 +31,7 @@ class Provider extends AbstractProvider
     /** @var array */
     protected static $contactFields = [
         'EML' => 'email',
+        'MBT' => 'phone'
     ];
 
     protected function esiaConfig(): Config
@@ -104,6 +105,7 @@ class Provider extends AbstractProvider
                     'id' => $user['oid'],
                     'name' => $user['lastName'].' '.$user['firstName'].' '.$user['middleName'],
                     'email' => $user['email'],
+                    'phone' => $user['phone'],
                     'token' => $user['token'],
                 ]
             );
