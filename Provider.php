@@ -102,11 +102,11 @@ class Provider extends AbstractProvider
             ->setRaw($user)
             ->map(
                 [
-                    'id' => $user['oid'],
+                    'id' => $user['oid'] ?? '',
                     'name' => $user['lastName'].' '.$user['firstName'].' '.$user['middleName'],
-                    'email' => $user['email'],
-                    'phone' => $user['phone'],
-                    'token' => $user['token'],
+                    'email' => $user['email'] ?? '',
+                    'phone' => $user['phone'] ?? '',
+                    'token' => $user['token'] ?? '',
                 ]
             );
     }
